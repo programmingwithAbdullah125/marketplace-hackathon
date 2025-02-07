@@ -1,4 +1,10 @@
+// nect.config.mjs to next.config.ts
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+    images: {
+        domains: ['cdn.sanity.io'], // Allow images from Sanity's CDN
+      },
+};
 
 export default nextConfig;
