@@ -1,9 +1,11 @@
-
+"use client"
 import client from "@/sanity/lib/client";
 import { groq } from "next-sanity";
 import { Product } from "../../../../types/products";
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image"; // Ensure you import the Image component
+import { addToCart } from "@/app/actions/action";
+import Swal from "sweetalert2";
 
 
 interface ProductPageProps {
@@ -22,6 +24,21 @@ async function getProduct(slug: string): Promise<Product> {
         }`, { slug }
     );
 }
+
+// additional functionality to manage add to cart button 
+
+  // to handle add to cart functionality
+  const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    await Swal.fire({
+      position: "center",
+      icon: "success",
+      title: `${product.name} added to cart`,
+      showConfirmButton: false,
+      timer: 1000,
+    });
+    addToCart(product);
+  };
 
 export default async function ProductPage({ params }: ProductPageProps) {
     const { slug } = await params;
@@ -50,6 +67,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                      <p className="text-gray-500 ">
                         {product.description}
                      </p>
+                     <button
+                className="bg-gradient-to-r from-blue-500 to bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-lg hover:scale-110 transition-transform duration-200 ease-in-out"
+                onClick={(e) => handleAddToCart(e, product)}
+              >
+                Add to cart
+              </button>
                 </div>
             </div>
         </div>

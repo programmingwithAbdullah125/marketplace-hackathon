@@ -1,86 +1,98 @@
-"use client"
-import Image from "next/image"
-import React, { useState } from "react";
+"use client";
+import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { FaShoppingCart } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isOpen, setIsOpen] = useState(false); // Mobile menu state
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > lastScrollY) {
+        setIsVisible(false); // Hide Navbar on Scroll Down
+      } else {
+        setIsVisible(true); // Show Navbar on Scroll Up
+      }
+      setLastScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [lastScrollY]);
 
   return (
-    <nav className="bg-gradient-to-r h-20  from-gray-800 to-gray-700 text-white shadow-lg">
-      <div className="container mx-auto flex justify-between items-center p-4">
-        {/* Brand Logo and Name */}
-        <div className="flex items-center space-x-2">
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            height={45}
-            width={45}
-            className=" rounded-full"
-          />
-          <span className="text-xl font-bold tracking-wide">PWA Fragrance Hub</span>
-        </div>
+    <>
+      {/* Navbar Fixed to Top */}
+      <nav
+        className={`fixed top-0 left-0 w-full z-50 bg-gray-900 text-white h-20 flex items-center transition-transform duration-300 ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
+        <div className="container mx-auto flex justify-between items-center px-4">
+          {/* Brand Logo and Name */}
+          <div className="flex items-center space-x-2">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              height={45}
+              width={45}
+              className="rounded-full"
+            />
+            <span className="text-xl font-bold tracking-wide">PWA Fragrance Hub</span>
+          </div>
 
-        {/* Hamburger Menu for Mobile */}
-        <div className="md:hidden">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="focus:outline-none text-white"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-        </div>
+          {/* Desktop Links */}
+          <div className="hidden md:flex space-x-10">
+            <Link href="/" className="hover:text-blue-400 transition duration-300">Home</Link>
+            <Link href="/about" className="hover:text-blue-400 transition duration-300">About</Link>
+            <Link href="/contact" className="hover:text-blue-400 transition duration-300">Contact</Link>
+            {/* Cart Icon for Desktop Only */}
+            <Link href="/cart" className="hover:text-blue-400 transition duration-300 text-2xl">
+              <FaShoppingCart />
+            </Link>
+          </div>
 
-        {/* Links */}
-        <div
-          className={`flex-col md:flex md:flex-row space-y-2 md:space-y-0 md:space-x-6 absolute md:static top-16 left-0 w-full md:w-auto bg-gray-800 md:bg-transparent ${
-            isOpen ? "block" : "hidden"
-          }`}
-        >
-          <a
-            href="/"
-            className="block md:inline-block px-4 py-2 md:py-0 hover:underline transition duration-200 ease-in-out hover:text-blue-400"
-          >
-            Home
-          </a>
-          {/* <a
-            href="/components/product"
-            className="block md:inline-block px-4 py-2 md:py-0 hover:underline transition duration-200 ease-in-out hover:text-blue-400"
-          >
-            Products
-          </a> */}
-          <Link
-            href="/about"
-            className="block md:inline-block px-4 py-2 md:py-0 hover:underline transition duration-200 ease-in-out hover:text-blue-400"
-          >
-            About
-          </Link>
-          <Link
-            href="/contact"
-            className="block md:inline-block px-4 py-2 md:py-0 hover:underline transition duration-200 ease-in-out hover:text-blue-400"
-          >
-            Contact
-            </Link>
-          <Link
-            href="/cart"
-            className="block md:inline-block px-4 py-2 md:py-0 hover:underline transition duration-200 ease-in-out hover:text-blue-400"
-          >
-            Your Cart
-            </Link>
+          {/* Hamburger Menu for Mobile & Tablet */}
+          <div className="md:hidden">
+            <button onClick={() => setIsOpen(!isOpen)} className="focus:outline-none text-white text-2xl">
+              ☰
+            </button>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Mobile Menu - Side Drawer */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.3 }} // Instant Open, No Delay
+            className="fixed top-20 right-0 w-2/3 h-auto bg-gray-900 text-white shadow-lg rounded-bl-lg flex flex-col items-center py-6 space-y-4 md:hidden z-50"
+          >
+            {/* Close Button */}
+            <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-3xl">
+              ✖
+            </button>
+
+            {/* Mobile Menu Links */}
+            <Link href="/" className="text-xl hover:text-blue-400 transition duration-300" onClick={() => setIsOpen(false)}>Home</Link>
+            <Link href="/about" className="text-xl hover:text-blue-400 transition duration-300" onClick={() => setIsOpen(false)}>About</Link>
+            <Link href="/contact" className="text-xl hover:text-blue-400 transition duration-300" onClick={() => setIsOpen(false)}>Contact</Link>
+            <Link href="/cart" className="text-xl hover:text-blue-400 transition duration-300" onClick={() => setIsOpen(false)}>Cart</Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fix Content Padding to Avoid Overlapping */}
+      <div className="pt-20"></div>
+    </>
   );
 }
